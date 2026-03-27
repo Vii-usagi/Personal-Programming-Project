@@ -1,4 +1,4 @@
-## Personal Programming Project - Vicky. (it works, change b4 start of new term)
+## Personal Programming Project - Vicky
 import random 
 
 starting = True
@@ -17,10 +17,10 @@ all_card_names = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8', 'h9', 'h10', '
                   'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'cJ', 'cQ', 'cK',
                   'Black_Joker', 'Red_Joker']
 
-#combined deck
+# Create combined deck
 full_deck = list(zip(all_cards, all_card_names))
 
-#prints rules
+# prints out the rules
 def intro():
     print('''Bot: Hello! Welcome to DouDiZhu aka Landlord
 Bot: These are the rules:''')
@@ -54,7 +54,7 @@ Four with two pairs: four of the same card and two pairs
 
 # the landlord card that the landlord receives
 def landlord_cards():
-    # copy of the full deck 
+    # Create a copy of the full deck to work with
     deck = full_deck.copy()
     random.shuffle(deck)
     
@@ -63,7 +63,7 @@ def landlord_cards():
     print("Bot: The flipped card is:", landlord_card)
     print("Bot: I will shuffle the cards now...")
     
-    # Deal cards - 17 cards each, leave 3 for landlord
+    # Deal cards - 17 cards each (total 51, leaving 3 for landlord)
     player_cards = deck[0:17]
     bot1_cards = deck[17:34]
     bot2_cards = deck[34:51]
@@ -133,7 +133,7 @@ def landlord_cards():
 def show_cards_left(player_cards):
     print("Your cards: ", end="")
     for i, card in enumerate(player_cards):
-        print(f"{i+1}:{card[0]} ", end="")
+        print(f"{i}:{card[0]} ", end="")
     print()
     print(f"You currently have: {len(player_cards)} cards")
 
@@ -146,20 +146,20 @@ def check_landlord_is_player(landlord_choice):
     return player_identity
 
 def check_combination(cards_played):
-    # Placeholder 
+    # Placeholder for combination checking logic
     pass
 
 def landlord_play(player_identity, player_cards, bot1_cards, bot2_cards):
     if player_identity == 1:
         show_cards_left(player_cards)
-        # Add later
+        # Add logic for landlord to play first
 
 def play_combination(turn_count, player_cards, bot1_cards, bot2_cards, current_combo_type):
     if turn_count == 0:
         current_combo = input("*Please play a combination*\n")
     else:
         current_combo = input(f"Please play cards that follow the {current_combo_type} combination\n")
-    # Add later
+    # Add logic to validate and process the combination
 
 #---- start of game ---
 starting = intro()
@@ -168,4 +168,4 @@ if starting:
     print("You are Player 1!!!")
     player_cards, bot1_cards, bot2_cards, landlord_choice = landlord_cards()
     player_identity = check_landlord_is_player(landlord_choice)
-    # add laterr
+    # Continue game logic here
