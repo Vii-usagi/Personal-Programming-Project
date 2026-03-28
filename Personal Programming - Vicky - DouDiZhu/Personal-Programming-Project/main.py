@@ -1,4 +1,7 @@
-## Personal Programming Project - Vicky. (it works, change b4 start of new term)
+## Personal Programming Project - Vicky. 
+# Copy // trash bin
+#WHY IS IT NOT COMMITING
+
 import random 
 
 starting = True
@@ -133,7 +136,7 @@ def landlord_cards():
 def show_cards_left(player_cards):
     print("Your cards: ", end="")
     for i, card in enumerate(player_cards):
-        print(f"{i+1}:{card[0]} ", end="")
+        print(f"{i+1}:{card[0]}:{card[1]} ", end="")
     print()
     print(f"You currently have: {len(player_cards)} cards")
 
