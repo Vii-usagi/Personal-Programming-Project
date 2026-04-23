@@ -1,12 +1,11 @@
 ## Personal Programming Project - Vicky. 
-# Copy // trash bin
-#WHY IS IT NOT COMMITING
 
 import random 
 from collections import Counter
 
 starting = True
 turn_count = 0
+current_combo_type = None
 
 # Fixed card decks
 all_cards = ['🂱', '🂲', '🂳', '🂴', '🂵', '🂶', '🂷', '🂸', '🂹', '🂺', '🂻', '🂼', '🂽', '🂾', 
@@ -19,10 +18,10 @@ all_card_names = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'h7', 'h8', 'h9', 'h10', '
                   's1', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', 'sJ', 'sQ', 'sK',
                   'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9', 'd10', 'dJ', 'dQ', 'dK',
                   'c1', 'c2', 'c3', 'c4', 'c5', 'c6', 'c7', 'c8', 'c9', 'c10', 'cJ', 'cQ', 'cK',
-                  'B!', 'R!']
+                  'BJ', 'RJ']
 
 # Rank map
-rank_map = {'3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14, '2': 15, 'B!': 16, 'R!':17}
+rank_map = {'3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, '10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14, '2': 15, 'BJ': 16, 'RJ':17}
 
 #combined deck
 full_deck = list(zip(all_cards, all_card_names))
@@ -135,16 +134,25 @@ def landlord_cards():
         print(card)
     
     return player_cards, bot1_cards, bot2_cards, landlord_choice
-
+#joker
+def get_rank(card):
+    name = card[1]
+    if name == 'BJ':
+        return 16
+    if name == 'RJ':
+        return 17
+    rank_part = name[1:]
+    return rank_map[rank_part]
+        
 # Show cards
-def show_cards_left(player_cards):
-    sorted_hand = sorted(player_cards, key=lambda card: rank_map[card[0:]])
+def show_cards_left(player_cards):  
+    sorted_hand = sorted(player_cards, key=get_rank)
     print("Your cards: ", end="")
     for i, card in enumerate(sorted_hand):
         print(f"{i+1}:{card[0]}:{card[1]} ", end="")
     print()
     print(f"You currently have: {len(player_cards)} cards")
-
+    return sorted_hand
 
 # Check if landlord is player
 def check_landlord_is_player(landlord_choice):
@@ -154,39 +162,52 @@ def check_landlord_is_player(landlord_choice):
         player_identity = 2
     return player_identity
 
+
 def check_combination(cards_played):
-    # check combo types by seeing how many cards per value is played
-    lisssst = []
+    if not cards_played:
+        return "Pass"
+        
+    values = []
     for card in cards_played:
-        lisssst.append(card[1])
-    #counting how many per value
-    counting_cards = Counter(lisssst)
-    #assigning current_combo (simple)
-    if 3 and 2 in counting_cards and len(counting_cards) == 5:
-        current_combo_type = "Trio with pair"
-    if 4 in counting_cards and len(counting_cards) == 4:
-        current_combo_type = "Bomb"
-    if 3 and 1 in counting_cards and len(counting_cards) == 5:
-        current_combo_type = "Trio with single card"
-    if 1 in counting_cards and len(counting_cards) == 1:
-        current_combo_type = "Solo"
-    if "!" and "!" in counting_cards and len(counting_cards) == 2:
-        current_combo_type = "Rocket" 
-    if "!" in counting_cards and len(counting_cards) == 1:
-        current_combo_type = "Single Joker"
-    if 4 and 1 and 1 in counting_cards and len(counting_cards) == 6:
-        current_combo_type = "Four with two"
-    if 4 and 2 in counting_cards and len(counting_cards) == 6:
-        current_combo_type = "Four with a pair"
-    
-    #assigning current_combo (in ascension)
+        name = card[1]
+        if name == 'BJ':
+            values.append(16)
+        elif name == 'RJ':
+            values.append(17)
+        else:
+            rank_part = name[1:]
+            values.append(rank_map[rank_part])
+        
+    value_counts = Counter(values)
+    num_cards = len(cards_played)
+        
+    # Rocket (BJ + RJ)
+    if set(values) == {16, 17}:
+        return "Rocket"
+        
+    # Solo
+    if num_cards == 1:
+        return "Solo"
+        
+    # Pair
+    if num_cards == 2 and max(value_counts.values()) == 2:
+        return "Pair"
+        
+    # Bomb
+    if num_cards == 4 and max(value_counts.values()) == 4:
+        return "Bomb"
+        
+    # Trio with single
+    if num_cards == 4 and max(value_counts.values()) == 3:
+        return "Trio with single card"
+        
+    # Trio with pair
+    if num_cards == 5 and sorted(value_counts.values()) == [2, 3]:
+        return "Trio with pair"
+        
     #placeholder
-    
-    pass
     #return current_combo_type
- 
-
-
+    return "Unknown"
 
 def landlord_play(player_identity, player_cards, bot1_cards, bot2_cards):
     if player_identity == 1:
