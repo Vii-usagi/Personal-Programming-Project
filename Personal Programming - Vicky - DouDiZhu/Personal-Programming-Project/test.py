@@ -2,10 +2,24 @@
 
 import random 
 from collections import Counter
+import pygame
+from colorist import ColorRGB, BgColorRGB, rgb, bg_rgb
 
 starting = True
 turn_count = 0
 current_combo_type = None
+
+#colors
+def bot(string):
+    rgb(string,200,10,10)
+def botty(string):
+    rgb(string,10,80,100)
+def cardy(string):
+    rgb(string,10,100,120)
+def bot1(string):
+    rgb(string, 250,0,100)
+def bot2(string):
+    rgb(string,0,100,250)
 
 # Fixed card decks
 all_cards = ['🂱', '🂲', '🂳', '🂴', '🂵', '🂶', '🂷', '🂸', '🂹', '🂺', '🂻', '🂼', '🂽', '🂾', 
@@ -28,9 +42,9 @@ full_deck = list(zip(all_cards, all_card_names))
 
 #prints rules
 def intro():
-    print('''Bot: Hello! Welcome to DouDiZhu aka Landlord
+    bot('''Bot: Hello! Welcome to DouDiZhu aka Landlord
 Bot: These are the rules:''')
-    print('''RULES:
+    bot('''RULES:
 3 people a game
 Whoever gets the flipped card is the landlord
 The landlord gets 3 extra cards that is shown to everyone
@@ -66,8 +80,8 @@ def landlord_cards():
     
     # Pick landlord card
     landlord_card = deck[random.randint(0, len(deck)-1)]
-    print("Bot: The flipped card is:", landlord_card)
-    print("Bot: I will shuffle the cards now...")
+    bot(f"Bot: The flipped card is: {landlord_card}")
+    bot("Bot: I will shuffle the cards now...")
     
     # Deal cards - 17 cards each, leave 3 for landlord
     player_cards = deck[0:17]
@@ -75,10 +89,10 @@ def landlord_cards():
     bot2_cards = deck[34:51]
     landlord_extra_cards = deck[51:54]
     
-    print("Bot: The landlord will receive 3 extra cards")
+    bot("Bot: The landlord will receive 3 extra cards")
     
     # Show the actual player's cards
-    print("Bot: These are Player 1's cards!")
+    bot("Bot: These are Player 1's cards!")
     show_cards_left(player_cards)
     
     # Seeing who is the landlord
@@ -94,13 +108,13 @@ def landlord_cards():
         landlord = int(input("Bot: Player {} is the landlord! Do you want to be the landlord? Click 1 if yes. ".format(landlord_choice)))
         
         if landlord == 1:
-            print("Player {} is the Landlord! The rest of the players are civilians!".format(landlord_choice))
+            botty("Player {} is the Landlord! The rest of the players are civilians!".format(landlord_choice))
             # Give extra cards to player
             player_cards.extend(landlord_extra_cards)
         else:
-            print("Repicking...")
+            bot("Repicking...")
             landlord_choice = random.randint(1,3)
-            print("New landlord is Player {}".format(landlord_choice))
+            botty("New landlord is Player {}".format(landlord_choice))
             # Give extra cards to new landlord
             if landlord_choice == 1:
                 player_cards.extend(landlord_extra_cards)
@@ -111,38 +125,40 @@ def landlord_cards():
                 
     # If the landlord is one of the bots
     elif landlord_choice == 2 or landlord_choice == 3:
-        print("Bot: Player {} is the landlord!".format(landlord_choice))
+        botty("Bot: Player {} is the landlord!".format(landlord_choice))
         yes_or_no = random.randint(1,2)
         if yes_or_no != 1:
-            print("Repicking...")
+            bot("Repicking...")
             landlord_choice = random.randint(1,3)
-            print("New landlord is Player {}".format(landlord_choice))
+            botty("New landlord is Player {}".format(landlord_choice))
         else:
-            print("Player {} is the Landlord! The rest of the players are civilians!".format(landlord_choice))
+            botty("Player {} is the Landlord! The rest of the players are civilians!".format(landlord_choice))
         
         # Give extra cards to landlord
         if landlord_choice == 1:
             player_cards.extend(landlord_extra_cards)
         elif landlord_choice == 2:
             bot1_cards.extend(landlord_extra_cards)
-        else:
+        elif landlord_choice == 3:
             bot2_cards.extend(landlord_extra_cards)
     
     # Show the landlord cards
-    print("Bot: These are the landlord cards!")
+    bot("Bot: These are the landlord cards!")
     for card in landlord_extra_cards:
-        print(card)
+        cardy(card)
     
     return player_cards, bot1_cards, bot2_cards, landlord_choice
 #joker
 def get_rank(card):
     name = card[1]
-    if name == 'BJ':
-        return 16
-    if name == 'RJ':
-        return 17
+    if name in ('BJ','RJ'):
+        return rank_map[name]
     rank_part = name[1:]
-    return rank_map[rank_part]
+    if rank_part in rank_map:
+        return int(rank_map[rank_part])
+    if rank_part == '1':  
+        return rank_map['A']
+    raise ValueError(f"Unknown rank part: {rank_part} from card name {name}")
         
 # Show cards
 def show_cards_left(player_cards):  
@@ -151,7 +167,7 @@ def show_cards_left(player_cards):
     for i, card in enumerate(sorted_hand):
         print(f"{i+1}:{card[0]}:{card[1]} ", end="")
     print()
-    print(f"You currently have: {len(player_cards)} cards")
+    cardy(f"You currently have: {len(player_cards)} cards")
     return sorted_hand
 
 # Check if landlord is player
@@ -169,6 +185,8 @@ def check_combination(cards_played):
         
     values = []
     for card in cards_played:
+        print(card)
+        print(card[1])
         name = card[1]
         if name == 'BJ':
             values.append(16)
@@ -209,27 +227,93 @@ def check_combination(cards_played):
     #return current_combo_type
     return "Unknown"
 
-def landlord_play(player_identity, player_cards, bot1_cards, bot2_cards):
+def landlord_play(player_identity, player_cards, bot1_cards, bot2_cards, turn_count, current_combo_type):
     if player_identity == 1:
         show_cards_left(player_cards)
-        play_combination(turn_count,player_cards,current_combo_type)
-        # Add later 
+        current_combo_type, turn_count = play_combination(turn_count,current_combo_type)
 
-def play_combination(turn_count, cards, current_combo_type):
-    if turn_count%3 == 0:
+        # Add later 
+    elif player_identity == 2:
+        #only playing single for now
+        current_combo_type, turn_count, cards_played = bot_play_landlord(turn_count,current_combo_type, bot1_cards)
+        bot1(f"Player 2 has played {cards_played}")
+        botty(f"Player 2 has {len(bot1_cards)} left")
+        
+    else:
+        current_combo_type, turn_count, cards_played = bot_play_landlord(turn_count,current_combo_type, bot2_cards)
+        bot2(f"Player 3 has played {cards_played}")
+        botty(f"Player 3 has {len(bot2_cards)} left")
+    
+    return current_combo_type, player_cards, bot1_cards, bot2_cards, turn_count
+
+        # add bot play ***
+    #add automatic bots
+    #can't incorporate open ai idk why
+
+def bot_play_landlord(turn_count, current_combo_type, bot_cards):
+    # bot play... only for single cos idk
+    # this doesn't work
+    if bot_cards == bot1_cards:
+        print(len(bot1_cards))
+        for i in bot1_cards:
+                chosen_card = random.randint(1,len(bot1_cards)-1)
+                cards_played = bot1_cards[chosen_card]
+    else:
+        for i in bot2_cards:
+                chosen_card = random.randint(1,20)
+                cards_played = bot2_cards[chosen_card]
+    current_combo_type = check_combination(cards_played)
+    turn_count += 1
+    return current_combo_type, turn_count, cards_played
+    
+
+
+def play_combination(turn_count, current_combo_type):
+    # if there is no current combo / reset the game
+    if turn_count == 0:
         cards_played = input("*Please play a combination*\n")
         print("You have played:", cards_played)
+        
+        # add later: check that the cards played are in the player's deck
+        # add later: pop the cards played from the player's deck
 
     else:
         cards_played = input(f"Please play cards that follow the {current_combo_type} combination\n")
-    # Add later
+        if cards_played == "Skip":
+            print("Going back to the previous player...")
+            #reset the round so there is no current_combo_type
+            turn_count = 0
+            return turn_count
+            # add on later
+        else:
+            #check if new matches old
+            new_combo_type = check_combination(cards_played) 
+            #check if its bigger
+
+            #add later
+
+            if new_combo_type == current_combo_type:
+                print("You have played:", cards_played)
+                turn_count += 1
+            else:
+                play_combination(turn_count, current_combo_type)
+    return current_combo_type, turn_count
+
+def check_larger_combo():
     pass
+    #add later
+
+
+
 
 #---- start of game ---
 starting = intro()
 
 if starting:
-    print("You are Player 1!!!")
+    cardy("You are Player 1!!!")
     player_cards, bot1_cards, bot2_cards, landlord_choice = landlord_cards()
     player_identity = check_landlord_is_player(landlord_choice)
+    sorted_hand = show_cards_left(player_cards)
+    current_combo_type, player_cards, bot1_cards, bot2_cards, turn_count = landlord_play(player_identity, player_cards, bot1_cards, bot2_cards, turn_count, current_combo_type)
+
     # add laterr
