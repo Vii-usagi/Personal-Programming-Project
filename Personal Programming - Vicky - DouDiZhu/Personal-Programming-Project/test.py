@@ -186,14 +186,14 @@ def check_combination(cards_played):
     values = []
     for card in cards_played:
         print(card)
-        print(card[1])
-        name = card[1]
+        print(card[0])
+        name = card[0]
         if name == 'BJ':
             values.append(16)
         elif name == 'RJ':
             values.append(17)
         else:
-            rank_part = name[1:]
+            rank_part = name[0:]
             values.append(rank_map[rank_part])
         
     value_counts = Counter(values)
