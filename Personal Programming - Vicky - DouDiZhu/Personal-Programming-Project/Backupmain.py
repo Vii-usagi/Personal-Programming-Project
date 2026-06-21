@@ -1,6 +1,5 @@
 import random 
 from collections import Counter
-import pygame
 from colorist import ColorRGB, BgColorRGB, rgb, bg_rgb
 
 starting = True
@@ -8,6 +7,7 @@ turn_count = 0
 current_combo_type = None
 #what can I say, Im just dat amazin
 all_cards_played = [ ]
+skips_in_row = 0
 
 # Fixed card decks
 all_cards = [
@@ -81,6 +81,7 @@ Four with a pair: four of the same card and a pair
         return False
 
 # the landlord card that the landlord receives
+# this works completely fine
 def landlord_cards():
     deck = full_deck.copy()
     random.shuffle(deck)
@@ -153,8 +154,10 @@ def show_cards_left(player_cards):
 def check_landlord_is_player(landlord_choice):
     if landlord_choice == 1:
         player_identity = 1
-    else:
+    if landlord_choice == 2:
         player_identity = 2
+    if landlord_choice ==3:
+        player_identity = 3
     return player_identity
 
 def check_combination(cards_played):
@@ -228,7 +231,7 @@ def landlord_play(player_identity, player_cards, bot1_cards, bot2_cards, turn_co
     return current_combo_type, player_cards, bot1_cards, bot2_cards, turn_count
 '''
 
-
+#### SOOO MANY BUGS
 def landlord_play(player_identity, player_cards, bot1_cards, bot2_cards, turn_count, current_combo_type, skips_in_row):
     if player_identity == 1:
         show_cards_left(player_cards)
@@ -237,11 +240,14 @@ def landlord_play(player_identity, player_cards, bot1_cards, bot2_cards, turn_co
         current_combo_type, turn_count, cards_played, skips_in_row = bot_play_combination(turn_count, current_combo_type, bot1_cards, skips_in_row)
         if cards_played:
             print(f"Player 2 has played {[c[0] for c in cards_played]}")
+            print(f"Player 2 has played {[c[1] [2] for c in cards_played]}")
             print(f"Player 2 has {len(bot1_cards)} left")
+    
     else:
         current_combo_type, turn_count, cards_played, skips_in_row = bot_play_combination(turn_count, current_combo_type, bot2_cards, skips_in_row)
         if cards_played:
             print(f"Player 3 has played {[c[0] for c in cards_played]}")
+            print(f"Player 2 has played {[c[1] [2] for c in cards_played]}")
             print(f"Player 3 has {len(bot2_cards)} left")
     return current_combo_type, player_cards, bot1_cards, bot2_cards, turn_count, skips_in_row
 
@@ -285,14 +291,18 @@ def skip_turn(turn_count, current_combo_type, skips_in_row, total_players=3):
 
 def play_combination(turn_count, current_combo_type, player_cards, all_cards_played):
     choice = input("*Enter card numbers separated by spaces*\n")
-    indices = [int(x)-1 for x in choice.split()]
-    cards_played = [player_cards[i] for i in indices]
+    indicies = choice.split()
+    for i in range(len(indicies)):
+        indicies[i] = int(indicies[i][1:])
+
+    cards_played = [player_cards[i] for i in indicies]
     combo_type = check_combination(cards_played)
     if turn_count == 0 or combo_type == current_combo_type:
         print("You have played:", cards_played)
         for c in cards_played:
             player_cards.remove(c)
         turn_count += 1
+        print(all_cards_played)
         all_cards_played.append(cards_played)
     else:
         print("Invalid combination, try again.")
@@ -476,7 +486,7 @@ if starting:
     player_cards, bot1_cards, bot2_cards, landlord_choice = landlord_cards()
     player_identity = check_landlord_is_player(landlord_choice)
     sorted_hand = show_cards_left(player_cards)
-    current_combo_type, player_cards, bot1_cards, bot2_cards, turn_count = landlord_play(
-        player_identity, player_cards, bot1_cards, bot2_cards, turn_count, current_combo_type,skips_in_row
+    current_combo_type, player_cards, bot1_cards, bot2_cards, turn_count, skips_in_row = landlord_play(
+        player_identity, player_cards, bot1_cards, bot2_cards, turn_count, current_combo_type, skips_in_row
     )
     # add laterr
